@@ -133,6 +133,31 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        #credit {
+    position: absolute;
+    top: 30px;
+    left: 6px;
+    color: white;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+#github-link {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+#github-icon {
+    width: 30px;
+    height: 30px;
+    filter: invert(1);
+    cursor: pointer;
+}
+
+
         
     </style>
 </head>
@@ -145,6 +170,11 @@
     <div id="modal-overlay"></div>
     <div id="modal"></div>
     <div id="right-panel"></div>
+    <a id="github-link" href="https://github.com/nurzfmalm/RoadRunner-Path-Generator" target="_blank">
+        <img id="github-icon" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+    </a>
+    
+    <h1 id = "credit">By Team #19164 Сristabol</h1>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -153,7 +183,6 @@
         const modalOverlay = document.getElementById('modal-overlay');
         const showCodeBtn = document.getElementById('show-code-btn');
         const rightPanel = document.getElementById('right-panel');
-
         const arrowImg = new Image();
         arrowImg.src = 'arrow.png';
 

@@ -124,6 +124,30 @@
         .delete-btn:hover {
             background: darkred;
         }
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        #copy-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            font-size: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #copy-btn:hover {
+            background: #0056b3;
+        }
         #MRD{
             margin-top: 200px;
             padding: 30px 30px;
@@ -342,17 +366,13 @@
             if (event.key === 'x' && points.length > 0) {
                 points.pop();
                 drawField();
-            } else if (event.key === 'c' ) {
-                isCodeShow = !isCodeShow;
             }
-            if(isCodeShow)showExportedCode();else dontShowExportedCode();
         });
         showCodeBtn.addEventListener('click', ()=>{
-            isCodeShow = !isCodeShow;
-            if(isCodeShow)showExportedCode();else dontShowExportedCode();
+            showExportedCode();
         });
         function showExportedCode() {
-            let code = "Exported Code\nmyBot.runAction(myBot.getDrive().actionBuilder(";
+            let code = "myBot.runAction(myBot.getDrive().actionBuilder(";
             if (points.length > 0) {
                 code += `new Pose2d(${getX(0)}, ${getY(0)}, Math.toRadians(${getDegreeCord(1,0)})))`;
 
@@ -363,9 +383,17 @@
 
                 code += "\n.build());";
             }
-            modal.textContent = code;
             modal.style.display = 'block';
             modalOverlay.style.display = 'block';
+            modal.innerHTML = '<button class="close-btn" onclick="dontShowExportedCode()">&times;</button><p>';
+            modal.innerHTML += code + "</p>";
+            modal.innerHTML+='<button id="copy-btn">Copy Code</button>';
+
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Code copied!");
+            });
+        });
         }
         function getX(i){
             return ((points[i].x - canvas.width / 2) / scale).toFixed(2);

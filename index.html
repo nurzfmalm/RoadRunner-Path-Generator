@@ -188,7 +188,7 @@
 <body>
     <button id="show-code-btn"><img src="memo.png" /></button>
     <canvas id="gameCanvas" width="800" height="800"></canvas>
-    <div id="coordinates" onClick="window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley');">x: 0, y: 0</div>
+    <div id="coordinates" onClick="window.open('RickRoll.mp4');">x: 0, y: 0</div>
     <h1 id="points"></h1>
     <button id="MRD" onClick="window.open('mrd.jpg');"></button>
     <div id="modal-overlay"></div>
@@ -267,7 +267,8 @@
                 for (let i = 0; i < points.length; i++) {
                     ctx.lineTo(points[i].x, points[i].y);
                     if((((points[i].x - canvas.width / 2) / scale) == 1488 )||(((canvas.height / 2 - points[i].y) / scale) == 1488 )||(points[i].angle == 1488 )){
-                        window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley');
+                        window.open('RickRoll.mp4');
+
                     }
                 }
                 if(points.length== 69){

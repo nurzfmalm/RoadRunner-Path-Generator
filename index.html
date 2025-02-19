@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Field</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        canvas {
+            background: url('2025Background.png') no-repeat center center;
+            background-size: cover;
+            width: 800px;
+            height: 800px;
+            border: 2px solid white;
+            cursor: crosshair;
+        }
+        #coordinates {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        #modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            font-family: Arial, sans-serif;
+            white-space: pre;
+        }
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        #show-code-btn {
+            margin-top: 0px;
+            padding: 15px 15px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #show-code-btn:hover {
+            background: darkred;
+        }
+        
+        #right-panel {
+            position: absolute;
+            right: 20px;
+            top: 50px;
+            width: 300px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .point-container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            color: white;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .point-container strong {
+            text-align: center;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        .point-container label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .point-container input, .point-container select {
+            width: 100px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgb(7, 224, 231);
+            text-align: center;
+            border-radius: 5px;
+        }
+        .point-container input:focus, .point-container select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .delete-btn:hover {
+            background: darkred;
+        }
+        #MRD{
+            margin-top: 200px;
+            padding: 30px 30px;
+            background: rgba(0, 0, 0, 0);
+            color: rgba(0, 0, 0, 0);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+    </style>
+</head>
+<body>
+    <button id="show-code-btn"><img src="memo.png" /></button>
+    <canvas id="gameCanvas" width="800" height="800"></canvas>
+    <div id="coordinates" onClick="window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley');">x: 0, y: 0</div>
+    <h1 id="points"></h1>
+    <button id="MRD" onClick="window.open('mrd.jpg');"></button>
+    <div id="modal-overlay"></div>
+    <div id="modal"></div>
+    <div id="right-panel"></div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const coordDisplay = document.getElementById('coordinates');
+        const modal = document.getElementById('modal');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const showCodeBtn = document.getElementById('show-code-btn');
+        const rightPanel = document.getElementById('right-panel');
+
+        const arrowImg = new Image();
+        arrowImg.src = 'arrow.png';
+
+        let points = [];
+        isCodeShow = false;
+
+        const maxCoord = 70;
+        const scale = canvas.width / (2 * maxCoord);
+
+    function drawField() {
+        const img = new Image();
+        img.src = '2025Background.png';
+        img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+            ctx.save(); 
+            ctx.translate(canvas.width / 2, canvas.height / 2); 
+            ctx.rotate(Math.PI / 2); 
+            ctx.drawImage(img, -canvas.height / 2, -canvas.width / 2, canvas.height, canvas.width);
+            ctx.restore(); 
+
+            drawAxes();
+            drawPath();
+            drawPoints();
+            updateRightPanel();
+    };
+}
+
+
+        function drawAxes() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+            //drawArrow(point);
+        }
+
+        function drawPath() {
+            if (points.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            points.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = 'yellow';
+                ctx.fill();
+            });
+            
+        }
+        function drawPoints() {
+            points.forEach((point, index) => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = 'yellow';
+                ctx.fill();
+                drawArrow(point);
+            });
+        }
+
+        function drawArrow(point) {
+            if(point.angle !=null){
+                const length = 20;
+                Angle = -point.angle;
+                const arrowX = point.x + length * Math.cos(Angle * Math.PI/180);
+                const arrowY = point.y + length * Math.sin(Angle * Math.PI/180);
+                ctx.save();
+                ctx.translate(arrowX, arrowY);
+                ctx.rotate(Angle * Math.PI/180);
+                ctx.drawImage(arrowImg, -20, -20, 40, 40);
+                ctx.restore();
+        }
+        } 
+        function updateRightPanel() {
+            rightPanel.innerHTML = '';
+            points.forEach((point, index) => {
+                const pointDiv = document.createElement('div');
+                pointDiv.className = 'point-container';
+                pointDiv.innerHTML = `
+                    <strong>Point ${index + 1}</strong>
+                    <label>X: <input type='number' value='${((point.x - canvas.width / 2) / scale).toFixed(2)}' data-index='${index}' class='point-x'></label>
+                    <label>Y: <input type='number' value='${((canvas.height / 2 - point.y) / scale).toFixed(2)}' data-index='${index}' class='point-y'></label>
+                    <label>Angle: <input type='number' value='${(point.angle * 1).toFixed(2)}' data-index='${index}' class='point-angle'>°</label>
+                    <label>Type: 
+                        <select data-index='${index}' class='point-type'>
+                            <option value='constant'>Constant</option>
+                            <option value='trans'>Translating</option>
+                        </select>
+                    </label>
+                    <button class='delete-btn' data-index='${index}'>Delete</button>
+                `;
+                rightPanel.appendChild(pointDiv);
+            });
+            document.querySelectorAll('.point-x, .point-y, .point-angle').forEach(input => {
+                input.addEventListener('change', (event) => {
+                    const index = event.target.dataset.index;
+                    const value = parseFloat(event.target.value);
+                    if (event.target.classList.contains('point-x')) {
+                        points[index].x = value * scale + canvas.width / 2;
+                    } else if (event.target.classList.contains('point-y')) {
+                        points[index].y = canvas.height / 2 - value * scale;
+                    } else if (event.target.classList.contains('point-angle')) {
+                        points[index].angle = value;
+                    }
+                    drawField();
+                });
+            });
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const index = event.target.dataset.index;
+                    points.splice(index, 1);
+                    drawField();
+                });
+            });
+        }
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (event.clientX - rect.left - canvas.width / 2) / scale;
+            const y = (canvas.height / 2 - (event.clientY - rect.top)) / scale;
+            points.push({ x: x * scale + canvas.width / 2, y: canvas.height / 2 - y * scale ,type: 'trans'});
+            if(points.length >= 2)
+            points[points.length-2].angle =  getDegreeCord(points.length-1,points.length-2)
+            drawField();
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (event.clientX - rect.left - canvas.width / 2) / scale;
+            const y = (canvas.height / 2 - (event.clientY - rect.top)) / scale;
+            coordDisplay.textContent = `x: ${Math.round(x)}, y: ${Math.round(y)}`;
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'x' && points.length > 0) {
+                points.pop();
+                drawField();
+            } else if (event.key === 'c' ) {
+                isCodeShow = !isCodeShow;
+            }
+            if(isCodeShow)showExportedCode();else dontShowExportedCode();
+        });
+        showCodeBtn.addEventListener('click', ()=>{
+            isCodeShow = !isCodeShow;
+            if(isCodeShow)showExportedCode();else dontShowExportedCode();
+        });
+        function showExportedCode() {
+            let code = "Exported Code\nmyBot.runAction(myBot.getDrive().actionBuilder(";
+            if (points.length > 0) {
+                code += `new Pose2d(${getX(0)}, ${getY(0)}, Math.toRadians(${getDegreeCord(1,0)})))`;
+
+                for (let i = 1; i < points.length-1; i++) {
+                    code += `\n.splineTo(new Vector2d(${getX(i)}, ${getY(i)}), Math.toRadians(${getDegreeCord(i+1,i)}))`;
+                }
+                code += `\n.splineTo(new Vector2d(${getX(points.length-1)}, ${getY(points.length-1)}), Math.toRadians(0))`;
+
+                code += "\n.build());";
+            }
+            modal.textContent = code;
+            modal.style.display = 'block';
+            modalOverlay.style.display = 'block';
+        }
+        function getX(i){
+            return ((points[i].x - canvas.width / 2) / scale).toFixed(2);
+        }
+        function getY(i){
+            return ((canvas.height / 2 - (points[i].y)) / scale).toFixed(2);
+        }
+        function dontShowExportedCode(){
+            modal.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        }
+        function getDegreeCord(a,b){
+            if(points[a].y > points[b].y){
+                return -(Math.acos((points[a].x - points[b].x)/(
+                            Math.sqrt(
+                                Math.pow(points[a].x-points[b].x,2)+Math.pow(points[a].y-points[b].y,2))))*180/Math.PI).toFixed(2)+360;}
+            else{
+                return (Math.acos((points[a].x - points[b].x)/(
+                            Math.sqrt(
+                                Math.pow(points[a].x-points[b].x,2)+Math.pow(points[a].y-points[b].y,2))))*180/Math.PI).toFixed(2);}
+        }
+
+        drawField();
+    </script>
+</body>
+</html>
+
+

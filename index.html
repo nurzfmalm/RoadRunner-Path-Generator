@@ -230,13 +230,14 @@
 
         const maxCoord = 70;
         const scale = canvas.width / (2 * maxCoord);
-        let visited =  parseInt(getCookie('visit'));
-
+        let visited = 25193;
+        if( parseInt(getCookie('visit'))!=Nan)
+             visited =  parseInt(getCookie('visit'));
     function drawField() {
         if(parseInt(getCookie('visit'))<=visited)
             setCookie('visit',parseInt(visited) + 1,10);
         if(parseInt(getCookie('visit'))>26000)
-        setCookie('visit',25192,10);
+        setCookie('visit',25195,10);
         const img = new Image();
         img.src = '2025Background.png';
         img.onload = () => {
